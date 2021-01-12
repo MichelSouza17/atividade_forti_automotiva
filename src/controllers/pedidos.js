@@ -5,9 +5,33 @@ module.exports = {
     async listarPedidos (req, res) {
 
         try {
-            const pedidos = await Pedido.findAll();
-    
-            res.send(pedidos);
+
+            const filtro = req.query;
+
+            if (Object.keys(filtro).length !==0) {
+
+                if(!filtro.nome) filtro.nome = "";
+                if(!filtro.produto) filtro.produto = "";
+
+                const pedidos = await Pedido.findAll({
+                    where: { 
+                        nome: { 
+                            [Op.like]: `%${filtro.nome}%`
+                        },
+                        produto: {
+                            [Op.like]: `%${filtro.produto}%`
+                        }
+                    }
+                });
+
+                res.send(pedidos);
+
+            } else {
+                const pedidos = await Pedido.findAll();
+                res.send(pedidos)
+
+            }
+            
         } catch (error) {
             console.log(error);
             res.status(500).send({ error })
